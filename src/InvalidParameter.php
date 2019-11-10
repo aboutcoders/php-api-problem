@@ -7,29 +7,21 @@ use OpenApi\Annotations as OA;
 /**
  * Provides information about an invalid parameter provided as part of an HTTP API request.
  *
- * @see https://tools.ietf.org/html/rfc7807@package Unicorn\ApiProblem\Model
- *
- * @OA\Schema()
+ * @see https://tools.ietf.org/html/rfc7807
  */
 class InvalidParameter
 {
     /**
-     * @OA\Property()
-     *
      * @var string
      */
     private $name;
 
     /**
-     * @OA\Property()
-     *
      * @var string
      */
     private $reason;
 
     /**
-     * @OA\Property()
-     *
      * @var string|null
      */
     private $value;
