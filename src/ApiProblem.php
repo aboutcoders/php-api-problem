@@ -170,21 +170,19 @@ class ApiProblem
 
     public function toArray(): array
     {
-        $array = [
-            'type' => $this->getType(),
-            'title' => $this->getTitle(),
-            'status' => $this->getStatus(),
-            'detail' => $this->getDetail(),
-            'instance' => $this->getInstance(),
-            'invalid-params' => array_map(function (InvalidParameter $invalidParameter) {
-                return $invalidParameter->toArray();
-            }, $this->getInvalidParams()),
-        ];
+        $array = get_object_vars($this);
 
-        foreach (['instance', 'invalid-params'] as $key) {
-            if (null == $array[$key] || empty($array[$key])) {
-                unset($array[$key]);
-            }
+        unset($array['invalidParams']);
+
+        $array['invalid-params'] = array_map(
+            function (InvalidParameter $invalidParameter) {
+                return $invalidParameter->toArray();
+            },
+            $this->getInvalidParams()
+        );
+
+        if(empty($array['invalid-params'])) {
+            unset($array['invalid-params']);
         }
 
         return $array;
@@ -198,15 +196,19 @@ class ApiProblem
     public static function fromArray(array $data): self
     {
         foreach (['type', 'title', 'status'] as $mandatoryKey) {
-            if(!isset($data[$mandatoryKey]))
-            {
+            if (! isset($data[$mandatoryKey])) {
                 throw new \InvalidArgumentException(sprintf('The array must contain the key "%s"', $mandatoryKey));
             }
         }
 
-        $apiProblem = new static($data['type'], $data['title'], $data['status'], $data['detail'] ?? null, $data['instance'] ?? null);
-        if(isset($data['invalid-params']))
-        {
+        $apiProblem = new static(
+            $data['type'],
+            $data['title'],
+            $data['status'],
+            $data['detail'] ?? null,
+            $data['instance'] ?? null
+        );
+        if (isset($data['invalid-params'])) {
             $invalidParams = [];
             foreach ($data['invalid-params'] as $paramData) {
                 $invalidParams[] = InvalidParameter::fromArray($paramData);
@@ -219,7 +221,7 @@ class ApiProblem
 
     public function toJson(): string
     {
-        return json_encode((object) $this->toArray());
+        return json_encode((object)$this->toArray());
     }
 
     /**
@@ -232,7 +234,7 @@ class ApiProblem
     {
         $data = json_decode($json, true);
 
-        if(null === $data) {
+        if (null === $data) {
             throw new InvalidJsonException($json);
         }
 
