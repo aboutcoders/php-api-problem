@@ -3,6 +3,7 @@
 namespace Abc\ApiProblem\Tests;
 
 use Abc\ApiProblem\ApiProblem;
+use Abc\ApiProblem\InvalidJsonException;
 use Abc\ApiProblem\InvalidParameter;
 use PHPUnit\Framework\TestCase;
 
@@ -39,5 +40,19 @@ class ApiProblemTest extends TestCase
         $decodedApiProblem = ApiProblem::fromJson($apiProblem->toJson());
 
         $this->assertEquals($apiProblem, $decodedApiProblem);
+    }
+
+    public function testFromJsonWithInvalidJson()
+    {
+        $this->expectException(InvalidJsonException::class);
+
+        ApiProblem::fromJson('invalidJson');
+    }
+
+    public function testFromJsonWithInvalidData()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        ApiProblem::fromJson(json_encode((object)['some' => 'value']));
     }
 }

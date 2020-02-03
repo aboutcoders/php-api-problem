@@ -190,8 +190,20 @@ class ApiProblem
         return $array;
     }
 
+    /**
+     * @param array $data
+     * @return static
+     * @throws \InvalidArgumentException In case the array does not contain the keys 'type', 'title', or 'status'
+     */
     public static function fromArray(array $data): self
     {
+        foreach (['type', 'title', 'status'] as $mandatoryKey) {
+            if(!isset($data[$mandatoryKey]))
+            {
+                throw new \InvalidArgumentException(sprintf('The array must contain the key "%s"', $mandatoryKey));
+            }
+        }
+
         $apiProblem = new static($data['type'], $data['title'], $data['status'], $data['detail'] ?? null, $data['instance'] ?? null);
         if(isset($data['invalid-params']))
         {
@@ -210,8 +222,20 @@ class ApiProblem
         return json_encode((object) $this->toArray());
     }
 
-    public static function fromJson(string $data): self
+    /**
+     * @param string $json
+     * @return static
+     * @throws InvalidJsonException
+     * @throws \InvalidArgumentException In case the json does not contain the properties of an ApiProblem
+     */
+    public static function fromJson(string $json): self
     {
-        return static::fromArray(json_decode($data, true));
+        $data = json_decode($json, true);
+
+        if(null === $data) {
+            throw new InvalidJsonException($json);
+        }
+
+        return static::fromArray($data);
     }
 }
